@@ -1,18 +1,10 @@
-const { Router } = require("express");
-const express = require("express");
+import express, { Router } from 'express';
+import { main } from './app/controller/index.js'
+
 
 const app = express();
 const port = 3000;
 
-const router = new Router();
+app.use('/main', main)
 
-router.get('/',(req, res) => {
-    return res.status(200).send({message:"bolsonitro"})
-});
-
-router.post('/teste', (req,res) => {
-    return res.status(200).send({dados:req.body})
-});
-
-app.use(router);
-app.listen(3000);
+app.listen(port);

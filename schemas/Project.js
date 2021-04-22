@@ -1,13 +1,4 @@
-const mongoose = require('mongoose')
-
-mongoose.connect('mongodb://localhost/testeDB',{
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: true
-    });
-
-mongoose.Promise = global.Promise;
+const mongoose = require('../database/db.js')
 
 const schema = new mongoose.Schema({
     title: {

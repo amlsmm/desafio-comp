@@ -1,9 +1,10 @@
 const model = require('../schemas/Project.js');
+const bcrypt = require('bcrypt');
 
 const schema = model;
 
 module.exports = app => {
-    app.get('/', (req, res) => {
+    app.get('/', (req,res) => {
         schema.find()
             .then(datas => {
                 res.send(datas);
@@ -59,5 +60,7 @@ module.exports = app => {
                 res.status(400).send({error:'Não foi possível remover'});
             })
     })
+
+    
 
 }

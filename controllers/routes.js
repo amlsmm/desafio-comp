@@ -1,5 +1,7 @@
 const model = require('../schemas/Project.js');
+const users = require('../schemas/users.js');
 const bcrypt = require('bcrypt');
+
 
 const schema = model;
 
@@ -62,5 +64,26 @@ module.exports = app => {
     })
 
     
+    app.post('/register', (req,res) => {
+        const {user,email,password} = req.body;
+        users.findOne({email})
+            .then(data => {
+                if(data){
+                    res.status(400).send({error:'Esse email já está cadastrado'});
+                } else {
+                    users.create({user, email, password}).then(users => {
+                        res.send({users});
+                    }).catch(error => {
+                        console.error(error);
+                        res.status(400).send({error: 'Falha registro'});
+                    })
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                res.status(400).send({error: 'Não foi possível cadastrar'});
+            });
+    })
 
-}
+
+};

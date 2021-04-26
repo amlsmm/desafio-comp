@@ -1,9 +1,14 @@
 const model = require('../schemas/Project.js');
 const users = require('../schemas/users.js');
+const jtoken = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 
 const schema = model;
+
+function gerarHashSenha(password){
+    return bcrypt.hash(password,10);
+}
 
 module.exports = app => {
     app.get('/', (req,res) => {
@@ -77,7 +82,7 @@ module.exports = app => {
                         console.error(error);
                         res.status(400).send({error: 'Falha registro'});
                     })
-                }
+                }          
             })
             .catch(error => {
                 console.error(error);
@@ -85,5 +90,38 @@ module.exports = app => {
             });
     })
 
+    app.post('/login', (req,res) => {
+        const {email, password} = req.body;
+        users.findOne({email})
+            .then(data => {
+                if(bcrypt.compare(password,data.password)){
+                    const token = jtoken.sign({id:data.id}, 'lçaklsd@@@---aklsdlas163dlwm,',{expiresIn:172800});
+                    res.send({token: token});
+                }else{
+                    res.status(404).send('Senha incorreta.');
+                    }
+            })
+            .catch(error => {
+                console.error(error);
+                res.status(400).send({error: 'Email não encontrado'});
+            });
+    })
+
+    app.post('/new-password', (req,res) => {
+        const {email} = req.body;
+        users.findOne({email})
+            .then(data => {
+                if(data){
+                    const mailtoken = jtoken.sign({id:data.id}, 'askld12@-,',{expiresIn:9000});
+                    
+                }else{
+                    res.status(404);
+                }
+        })
+            .catch(error => {
+                console.error(error);
+                res.status(400).send({error: 'Erro.'});
+            })
+    })
 
 };

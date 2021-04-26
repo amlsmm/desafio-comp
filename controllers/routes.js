@@ -2,16 +2,13 @@ const model = require('../schemas/Project.js');
 const users = require('../schemas/users.js');
 const jtoken = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const auth = require('../middleware/auth.js');
 
 
 const schema = model;
 
-function gerarHashSenha(password){
-    return bcrypt.hash(password,10);
-}
-
 module.exports = app => {
-    app.get('/', (req,res) => {
+    app.get('/', auth, (req, res) => {
         schema.find()
             .then(datas => {
                 res.send(datas);
@@ -22,7 +19,7 @@ module.exports = app => {
             })
     });
 
-    app.post('/', (req, res) =>{
+    app.post('/', auth, (req, res) =>{
         const {title,description} = req.body;
         schema.create({title,description})
             .then(data => {
@@ -34,7 +31,7 @@ module.exports = app => {
             })
     })
 
-    app.get('/id/:ID', (req, res) => {
+    app.get('/id/:ID', auth, (req, res) => {
         schema.findById(req.params.ID)
             .then(data => {
                 res.send(data);
@@ -45,7 +42,7 @@ module.exports = app => {
             })
     });
 
-    app.put('/edit/id/:ID', (req,res) => {
+    app.put('/edit/id/:ID', auth, (req,res) => {
         const {title,description} = req.body;   
         schema.findByIdAndUpdate(req.params.ID,{title,description}, {new:true})
             .then(data => {
@@ -57,7 +54,7 @@ module.exports = app => {
             });
     });
 
-    app.delete('/delete/id/:ID', (req,res) => {
+    app.delete('/delete/id/:ID', auth, (req,res) => {
         schema.findByIdAndDelete(req.params.ID)
             .then( () => {
                 res.send('Removido com sucesso');

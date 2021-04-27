@@ -147,14 +147,10 @@ module.exports = app => {
         users.findOne({email})
             .then( data => {
                 if(data.pass_token == token){
-                    users.findByIdAndUpdate(data.id,{$set:{password:password}})
-                        .then( () =>{
-                            res.send('Senha atualizada com sucesso!')
-                        })
-                        .catch( err => {
-                            console.error(err);
-                            res.status(400).send('Erroa ao atualizar a senha');
-                        })
+                    data.pass_token = undefined;
+                    data.password = password;
+                    data.save();
+                    res.send('Senha atualizada!')
                 } 
             })
             .catch( err => {

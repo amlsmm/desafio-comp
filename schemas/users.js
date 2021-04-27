@@ -15,6 +15,10 @@ const SchemaUsers = new mongoose.Schema({
         required: true,
         unique: true
     },
+    pass_token: {
+        type: String,
+        default: ""
+    },
     date: {
         type: Date,
         default: Date.now

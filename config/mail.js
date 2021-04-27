@@ -1,6 +1,4 @@
-const mail = require('nodemailer');
-
-
+const nodemailer = require('nodemailer');
 
 const transport = nodemailer.createTransport({
     host: "smtp.mailtrap.io",
@@ -10,7 +8,5 @@ const transport = nodemailer.createTransport({
         pass: "2a810840c92c77"
     }
   });
-
-
 
 module.exports = transport;

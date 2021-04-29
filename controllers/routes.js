@@ -1,10 +1,9 @@
-const model = require('../schemas/Project.js');
+const model = require('../schemas/Posts.js');
 const users = require('../schemas/users.js');
 const jtoken = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const auth = require('../config/auth.js');
 const transport = require('../config/mail.js');
-const { findByIdAndUpdate } = require('../schemas/Project.js');
 
 const schema = model;
 
@@ -15,43 +14,52 @@ module.exports = app => {
                 res.send(datas);
             })
             .catch(error => {
-                console.error(error);
-                res.status(400).send({error: 'Não foi possível abrir seu DB'})
+                console.error(err);
+                res.status(400).send({err: 'Não foi possível abrir seu DB'})
             })
     });
 
     app.post('/', auth, (req, res) =>{
-        const {title,description} = req.body;
-        schema.create({title,description})
-            .then(data => {
-                res.status(200).send(data);
+        const {title,post} = req.body;
+        const author = req.id;
+        users.findById(author)
+            .then( user => {
+                const postBy = user.user;
+                schema.create({title,post,postBy})
+                    .then(data => {
+                        res.status(200).send(data);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        res.status(400).send({err: 'Não foi possivel salvar'});
+                    })
             })
-            .catch(error => {
-                console.error(error)
-                res.status(400).send({error: 'Não foi possivel salvar'})
+            .catch(err => {
+                console.error(err);
+                res.status(400).send('Erro');
             })
-    })
+    });
 
     app.get('/id/:ID', auth, (req, res) => {
         schema.findById(req.params.ID)
             .then(data => {
                 res.send(data);
             })
-            .catch(error => {
-                console.error(error);
-                res.status(400).send({error: 'Não foi possível encontrar esse ID.'});
+            .catch(err => {
+                console.error(err);
+                res.status(400).send({err: 'Não foi possível encontrar esse ID.'});
             })
     });
 
     app.post('/edit/id/:ID', auth, (req,res) => {
-        const {title,description} = req.body;   
-        schema.findByIdAndUpdate(req.params.ID,{title,description}, {new:true})
+        const {title,post} = req.body;   
+        schema.findByIdAndUpdate(req.params.ID,{title,post}, {new:true})
             .then(data => {
                 res.status(200).send(data);
             })
-            .catch(error => {
-                console.error(error);
-                res.status(400).send({error:'Não foi possível atualizar'});
+            .catch(err => {
+                console.error(err);
+                res.status(400).send({err:'Não foi possível atualizar'});
             });
     });
 
@@ -60,9 +68,9 @@ module.exports = app => {
             .then( () => {
                 res.send('Removido com sucesso');
             })
-            .catch(error => {
-                console.error(error);
-                res.status(400).send({error:'Não foi possível remover'});
+            .catch(err => {
+                console.error(err);
+                res.status(400).send({err:'Não foi possível remover'});
             })
     })
 
@@ -77,14 +85,14 @@ module.exports = app => {
                     users.create({user, email, password}).then(users => {
                         res.send({users});
                     }).catch(error => {
-                        console.error(error);
-                        res.status(400).send({error: 'Falha registro'});
+                        console.error(err);
+                        res.status(400).send({err: 'Falha registro'});
                     })
                 }          
             })
             .catch(error => {
-                console.error(error);
-                res.status(400).send({error: 'Não foi possível cadastrar'});
+                console.error(err);
+                res.status(400).send({err: 'Não foi possível cadastrar'});
             });
     })
 
@@ -100,8 +108,8 @@ module.exports = app => {
                     }
             })
             .catch(error => {
-                console.error(error);
-                res.status(400).send({error: 'Email não encontrado'});
+                console.error(err);
+                res.status(400).send({err: 'Email não encontrado'});
             });
     })
 
@@ -128,17 +136,18 @@ module.exports = app => {
                                     res.status(400);
                                 }); 
                         })
-                        .catch(error =>{
-                            console.log(error);
-                            res.status(400).sendo('erro ao enviar email');
+                        .catch(err =>{
+                            console.log(err);
+                            res.status(400).send('Erro ao enviar email');
                         })       
                 }else{
-                    res.status(404);
+                    res.status(400).send('Erro: email não encontrado');
                 }
             })
-            .catch(error => {
-                console.error(error);
-                res.status(400).send({error: 'Erro.'});
+            .catch(err => {
+                console.log('erro')
+                console.error(err);
+                res.status(400).send({err: 'Erro.'});
             })
     })
 

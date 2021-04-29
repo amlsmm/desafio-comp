@@ -15,6 +15,5 @@ module.exports = (req, res, next) => {
         }
     catch{ 
         res.status(401).send('Acesso negado')
-        }
-       
+        }      
 }

@@ -6,7 +6,11 @@ const schema = new mongoose.Schema({
         required: true,
         unique: true
         },
-    description: {
+    post: {
+        type: String,
+        required: true,
+        },
+    postBy: {
         type: String,
         required: true,
         },

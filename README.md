@@ -1,17 +1,18 @@
 <h1 align="center">Desafio-comp</h1>
 
-<p align="center">Back-end de uma aplicação desenvolvida com NodeJs, Express e MongoDB, com a temática de blog, que  contem, cadastro e login de usuários com recuperação de senhas e um simples CRUD para os posts.</p>
+<p align="center">Back-end de uma aplicação desenvolvida com NodeJs, Express, MongoDB e testada com o POSTMAN, com a temática de blog, que  contém, cadastro e login de usuários com recuperação de senhas e um simples CRUD para os posts.</p>
 
  
 <h2>Tecnologias</h2>
 
 <ul>
-    <li>Node.js v14.13.1</li>
-    <li>Express v6.14.8</li>
+    <li>Node.js v16.0.0</li>
+    <li>npm 7.10.0</li>
 </ul>
 
 <h2>NPM packages</h2>
 <ul>
+    <li>Express</li>
     <li>Nodemailer</li>
     <li>Bcrypt</li>
     <li>Jsonwebtoken</li>

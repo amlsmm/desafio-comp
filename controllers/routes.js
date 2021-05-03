@@ -4,6 +4,8 @@ const jtoken = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const auth = require('../config/auth.js');
 const transport = require('../config/mail.js');
+const { findById } = require('../schemas/Posts.js');
+const { response } = require('express');
 
 const schema = model;
 
@@ -72,7 +74,7 @@ module.exports = app => {
                 console.error(err);
                 res.status(400).send({err:'Não foi possível remover'});
             })
-    })
+    });
 
     
     app.post('/register', (req,res) => {
@@ -100,17 +102,24 @@ module.exports = app => {
         const {email, password} = req.body;
         users.findOne({email})
             .then(data => {
-                if(bcrypt.compare(password,data.password)){
-                    const token = jtoken.sign({id:data.id}, 'lçaklsd@@@---aklsdlas163dlwm,',{expiresIn:172800});
-                    res.send({token: token});
-                }else{
-                    res.status(404).send('Senha incorreta.');
+                bcrypt.compare(password, data.password, function(err, response){
+                    if (err){
+                        console.error(err);
+                        return res.status(404).send('Erro, verifique o email e tente novamente');
                     }
-            })
-            .catch(error => {
+                    if(response){
+                        const token = jtoken.sign({id:data.id}, 'lçaklsd@@@---aklsdlas163dlwm,',{expiresIn:172800});
+                        return res.send({token: token});
+                    }
+                    else{
+                        return res.status(400).send('Erro, verifique o email e a senha e tente novamente');
+                    }
+                    });
+                })
+            .catch( err => {
                 console.error(err);
-                res.status(400).send({err: 'Email não encontrado'});
-            });
+                res.send('Erro');
+            })
     })
 
     app.post('/forget-password', (req,res) => {
@@ -160,6 +169,9 @@ module.exports = app => {
                     data.password = password;
                     data.save();
                     res.send('Senha atualizada!')
+                }
+                else{
+                    res.status(404).send('Token incorreto.')
                 } 
             })
             .catch( err => {

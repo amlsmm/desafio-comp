@@ -29,7 +29,7 @@ SchemaUsers.pre('save', function(next) {
     const salt = 8;
     bcrypt.hash(this.password, salt, (err, hash) => {
         if (err){
-            console.error(err);
+            console.log(err);
         }
         this.password = hash;
         next();

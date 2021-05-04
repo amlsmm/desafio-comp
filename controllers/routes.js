@@ -4,8 +4,6 @@ const jtoken = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const auth = require('../config/auth.js');
 const transport = require('../config/mail.js');
-const { findById } = require('../schemas/Posts.js');
-const { response } = require('express');
 
 const schema = model;
 
@@ -15,9 +13,9 @@ module.exports = app => {
             .then(datas => {
                 res.send(datas);
             })
-            .catch(error => {
-                console.error(err);
-                res.status(400).send({err: 'Não foi possível abrir seu DB'})
+            .catch(err => {
+                console.log(err);
+                res.send('Não foi possível abrir seu DB')
             })
     });
 
@@ -29,16 +27,16 @@ module.exports = app => {
                 const postBy = user.user;
                 schema.create({title,post,postBy})
                     .then(data => {
-                        res.status(200).send(data);
+                        res.send(data);
                     })
                     .catch(err => {
-                        console.error(err);
-                        res.status(400).send({err: 'Não foi possivel salvar'});
+                        console.log(err);
+                        res.send('Não foi possivel salvar');
                     })
             })
             .catch(err => {
-                console.error(err);
-                res.status(400).send('Erro');
+                console.log(err);
+                res.send('Erro');
             })
     });
 
@@ -48,8 +46,8 @@ module.exports = app => {
                 res.send(data);
             })
             .catch(err => {
-                console.error(err);
-                res.status(400).send({err: 'Não foi possível encontrar esse ID.'});
+                console.log(err);
+                res.send('Não foi possível encontrar esse ID.');
             })
     });
 
@@ -57,11 +55,11 @@ module.exports = app => {
         const {title,post} = req.body;   
         schema.findByIdAndUpdate(req.params.ID,{title,post}, {new:true})
             .then(data => {
-                res.status(200).send(data);
+                res.send(data);
             })
             .catch(err => {
-                console.error(err);
-                res.status(400).send({err:'Não foi possível atualizar'});
+                console.log(err);
+                res.send('Não foi possível atualizar');
             });
     });
 
@@ -71,8 +69,8 @@ module.exports = app => {
                 res.send('Removido com sucesso');
             })
             .catch(err => {
-                console.error(err);
-                res.status(400).send({err:'Não foi possível remover'});
+                console.log(err);
+                res.send('Não foi possível remover');
             })
     });
 
@@ -82,19 +80,19 @@ module.exports = app => {
         users.findOne({email})
             .then(data => {
                 if(data){
-                    res.status(400).send({error:'Esse email já está cadastrado'});
+                    res.send('Esse email já está cadastrado');
                 } else {
                     users.create({user, email, password}).then(users => {
                         res.send({users});
-                    }).catch(error => {
-                        console.error(err);
-                        res.status(400).send({err: 'Falha registro'});
+                    }).catch(err => {
+                        console.log(err);
+                        res.send('Falha registro');
                     })
                 }          
             })
-            .catch(error => {
-                console.error(err);
-                res.status(400).send({err: 'Não foi possível cadastrar'});
+            .catch(err => {
+                console.log(err);
+                res.send('Não foi possível cadastrar');
             });
     })
 
@@ -104,20 +102,20 @@ module.exports = app => {
             .then(data => {
                 bcrypt.compare(password, data.password, function(err, response){
                     if (err){
-                        console.error(err);
-                        return res.status(404).send('Erro, verifique o email e tente novamente');
+                        console.log(err);
+                        res.send('Erro, verifique o email e tente novamente');
                     }
                     if(response){
                         const token = jtoken.sign({id:data.id}, 'lçaklsd@@@---aklsdlas163dlwm,',{expiresIn:172800});
-                        return res.send({token: token});
+                        res.send({token: token});
                     }
                     else{
-                        return res.status(400).send('Erro, verifique o email e a senha e tente novamente');
+                        res.send('Erro, verifique o email e a senha e tente novamente');
                     }
                     });
                 })
             .catch( err => {
-                console.error(err);
+                console.log(err);
                 res.send('Erro');
             })
     })
@@ -127,7 +125,7 @@ module.exports = app => {
         users.findOne({email})
             .then(data => {
                 if(data){
-                    const mailtoken = jtoken.sign({id:data.id}, 'askld12@-,',{expiresIn:9000});
+                    const mailtoken = jtoken.sign({id:data.id}, 'askld12@-,');
                     users.findByIdAndUpdate(data.id, {$set:{pass_token: mailtoken}})
                         .then( () => {
                             transport.sendMail({
@@ -141,22 +139,21 @@ module.exports = app => {
                                     res.send('Token enviado ao email:' + email);
                                 })
                                 .catch( err => {
-                                    console.error(err);
-                                    res.status(400);
+                                    console.log(err);
+                                    res.send('Erro');
                                 }); 
                         })
                         .catch(err =>{
                             console.log(err);
-                            res.status(400).send('Erro ao enviar email');
+                            res.send('Erro ao enviar email');
                         })       
                 }else{
-                    res.status(400).send('Erro: email não encontrado');
+                    res.send('Erro: email não encontrado');
                 }
             })
             .catch(err => {
-                console.log('erro')
-                console.error(err);
-                res.status(400).send({err: 'Erro.'});
+                console.log(err);
+                res.send('Erro.');
             })
     })
 
@@ -171,12 +168,12 @@ module.exports = app => {
                     res.send('Senha atualizada!')
                 }
                 else{
-                    res.status(404).send('Token incorreto.')
+                    res.send('Token incorreto.')
                 } 
             })
             .catch( err => {
-                console.error(err);
-                res.status(400).send(err);
+                console.log(err);
+                res.send(err);
             })
     })
 

@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
         jtoken.verify(token, 'lçaklsd@@@---aklsdlas163dlwm,', (error, decoded) => {
             if(error) {
                 console.error(error);
-                res.status(401).send({error:'Acesso negado'});
+                res.send('Acesso negado');
             }else{
                 req.id = decoded.id;
                 next();
@@ -14,6 +14,6 @@ module.exports = (req, res, next) => {
         });
         }
     catch{ 
-        res.status(401).send('Acesso negado')
+        res.send('Acesso negado')
         }      
 }

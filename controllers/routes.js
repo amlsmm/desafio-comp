@@ -1,15 +1,14 @@
-const model = require('../schemas/Posts.js');
+const posts = require('../schemas/Posts.js');
 const users = require('../schemas/users.js');
 const jtoken = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const auth = require('../config/auth.js');
+const auth = require('../config/authentication.js');
 const transport = require('../config/mail.js');
 
-const schema = model;
 
 module.exports = app => {
     app.get('/', auth, (req, res) => {
-        schema.find()
+        posts.find()
             .then(datas => {
                 res.send(datas);
             })
@@ -25,7 +24,7 @@ module.exports = app => {
         users.findById(author)
             .then( user => {
                 const postBy = user.user;
-                schema.create({title,post,postBy})
+                posts.create({title,post,postBy})
                     .then(data => {
                         res.send(data);
                     })
@@ -41,7 +40,7 @@ module.exports = app => {
     });
 
     app.get('/id/:ID', auth, (req, res) => {
-        schema.findById(req.params.ID)
+        posts.findById(req.params.ID)
             .then(data => {
                 res.send(data);
             })
@@ -52,26 +51,63 @@ module.exports = app => {
     });
 
     app.post('/edit/id/:ID', auth, (req,res) => {
-        const {title,post} = req.body;   
-        schema.findByIdAndUpdate(req.params.ID,{title,post}, {new:true})
-            .then(data => {
-                res.send(data);
+        users.findById(req.id)
+        .then(user => {
+            posts.findById(req.params.ID).then( post => {
+                if(user.user == post.postBy){
+                    const {title,post} = req.body;   
+                    posts.findByIdAndUpdate(req.params.ID,{title,post}, {new:true})
+                        .then(data => {
+                            res.send(data);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.send('Não foi possível atualizar');
+                        });
+                }else{
+                    res.send('Você não tem permissão para editar esse post');
+                }
             })
             .catch(err => {
                 console.log(err);
-                res.send('Não foi possível atualizar');
-            });
+                res.send('Erro');
+            })
+        })
+        .catch( err => {
+            console.log(err);
+            res.send('Erro');
+        })
     });
 
+
     app.delete('/delete/id/:ID', auth, (req,res) => {
-        schema.findByIdAndDelete(req.params.ID)
-            .then( () => {
-                res.send('Removido com sucesso');
-            })
-            .catch(err => {
-                console.log(err);
-                res.send('Não foi possível remover');
-            })
+        users.findById(req.id)
+        .then(user => {
+            posts.findById(req.params.ID)
+                .then( post => {
+                    if(user.user == post.postBy){
+                        const {title,post} = req.body;
+                        posts.findByIdAndDelete(req.params.ID)
+                            .then( () => {
+                                res.send('Removido com sucesso');
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.send('Não foi possível remover');
+                            })
+                    }else{
+                        res.send('Você não tem autorização para remover esse post')
+                    }
+                })
+                .catch( err => {
+                    console.log(err);
+                    res.send('Erro');
+                })
+        })
+        .catch( err => {
+            console.log(err);
+            res.send('Erro');
+        })    
     });
 
     
@@ -159,22 +195,25 @@ module.exports = app => {
 
     app.post('/new-password', (req,res) => {
         const {email, password, token} = req.body;
-        users.findOne({email})
-            .then( data => {
-                if(data.pass_token == token){
-                    data.pass_token = undefined;
-                    data.password = password;
-                    data.save();
-                    res.send('Senha atualizada!')
-                }
-                else{
-                    res.send('Token incorreto.')
-                } 
-            })
-            .catch( err => {
-                console.log(err);
-                res.send(err);
-            })
+        if(token){
+            users.findOne({email}).select('pass_token')
+                .then( data => {
+                    if(data.pass_token == token){
+                        data.pass_token = undefined;
+                        data.password = password;
+                        data.save();
+                        res.send('Senha atualizada!')
+                    }
+                    else{
+                        res.send('Token incorreto.')
+                    } 
+                })
+                .catch( err => {
+                    console.log(err);
+                    res.send(err);
+                })
+        }else{
+            res.send('Insira o token');
+        }
     })
-
 };

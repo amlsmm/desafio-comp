@@ -1,11 +1,17 @@
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost/testeDB',{
+    useFindAndModify: true,
     useNewUrlParser: true,
-    useUnifiedTopology: true,
     useCreateIndex: true,
-    useFindAndModify: true
-    });
-mongoose.Promise = global.Promise;
+    useUnifiedTopology: true
+    })
+        .then( () => {
+            console.log('Conectado ao DB');
+        })
+        .catch( err => {
+            console.log(err);
+            console.log('Erro ao conectar no DB');
+        })
 
 module.exports = mongoose;

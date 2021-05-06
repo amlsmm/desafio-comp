@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const SchemaUsers = new mongoose.Schema({
     user: {
         type: String,
+        unique: true,
         required: true
     },
     password: {
@@ -17,7 +18,7 @@ const SchemaUsers = new mongoose.Schema({
     },
     pass_token: {
         type: String,
-        default: ""
+        select: false
     },
     date: {
         type: Date,

@@ -3,8 +3,7 @@ const mongoose = require('../database/db.js')
 const schema = new mongoose.Schema({
     title: {
         type: String,
-        required: true,
-        unique: true
+        required: true
         },
     post: {
         type: String,
